@@ -1,7 +1,11 @@
 ![logo](https://github.com/NxtGenCode/SpeedTypers/assets/23224948/0abfa0d8-41fb-4ddc-b91c-e5bb2ae913e4)
 
-> Run "npm run dev" in your command terminal in the "client folder" to start the developement server for the react app.
+```
+Run "npm run dev" in your command terminal in the "client folder" to start the developement server for the react app.
+```
+```
 > Run "node server" in your command terminal in the "server folder" to start the node express server so our react app can connect to our database and make API requests for our data.
+```
 
 🦈🔤 Dive into the Excitement with SharkTypers! 🦈🔤
 
