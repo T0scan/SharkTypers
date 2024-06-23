@@ -8,8 +8,6 @@ Run "npm run dev" in your command terminal in the "client" folder to start the d
 Run "node server" in your command terminal in the "server" folder to start the node express server so our react app can connect to our database and make API requests for our data.
 ```
 
-🦈🔤 Dive into the Excitement with SharkTypers! 🦈🔤
-
 🎉 **Introducing SharkTypers:** A Thrilling Typing Game Adventure! 🎉
 
 Looking for a fun and competitive typing game to sharpen your skills while having a blast? Look no further! Say hello to SharkTypers – the ultimate HTML/CSS/JavaScript-powered game that promises hours of entertainment and learning.
