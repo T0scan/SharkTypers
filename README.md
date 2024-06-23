@@ -1,48 +1,6 @@
 ![logo](https://github.com/NxtGenCode/SpeedTypers/assets/23224948/0abfa0d8-41fb-4ddc-b91c-e5bb2ae913e4)
 
--------------------------
 
-```
-### Running the React Project
-
-To run the React project, follow these steps:
-
-1. Right click inside the project folder open the command terminal
-   ```
-   cd client
-   ```
-
-2. Once inside the client folder, start the server by running the following command:
-   ```
-   npm run dev
-   ```
-
-This command will start the development server and you should be able to access the React project in your web browser.
-
-If you encounter any issues or have any questions, feel free to ask!
-
-```
-
--------------------------
-
-```
-### Running the Server (Connects us to our Database and allows our client to request our API data.)
-
-To run the Express Server, follow these steps:
-
-1. Right click inside the project folder open the command terminal
-   ```
-   cd server
-   ```
-
-2. Once inside the server folder, start the express server by running the following command:
-   ```
-   node server
-   ```
-
-This command will start the Express Server and now you can connect to the API requests made by our client.
-
-```
 
 🦈🔤 Dive into the Excitement with SharkTypers! 🦈🔤
 
