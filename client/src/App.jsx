@@ -7,11 +7,15 @@ import Login from './Login/Login';
 import Register from './Register/Register';
 import ErrorPage from './Error/ErrorPage';
 import Profile from './Profile/Profile';
+import UserContextProvider from './UserContext/UserContext';
+import Header from './Header/Header';
 
 function App() {
 
   return (
+  <UserContextProvider>
   <Router>
+  <Header/>
     <Routes>
       <Route exact path="/" element={<Home/>} />
       <Route path="/race" element={<SharkTyperBox mode="race"/>} />
@@ -27,6 +31,7 @@ function App() {
       <Route element={<ErrorPage/>} />
     </Routes>
   </Router>
+  </UserContextProvider>
   )
 }
 

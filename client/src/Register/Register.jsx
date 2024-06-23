@@ -25,7 +25,7 @@ function Register() {
         try {
             const response = await axios.post('/api/user/register', formData);
             console.log(response.status); // Handle success response
-            if(response.status === 200){
+            if (response.status === 200) {
                 navigate('/login')
             }
         } catch (error) {
@@ -35,7 +35,6 @@ function Register() {
 
     return (
         <>
-            <Header />
             <div id="login-area">
                 <h1>Register</h1>
                 <div ref={formMessage} className="form-message"></div>

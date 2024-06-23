@@ -1,34 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import Header from "../Header/Header";
+import { UserContext } from "../UserContext/UserContext";
 
 function Home() {
-    console.log('romeo')
+
+    const userData = useContext(UserContext)
+    const isLoggedIn = userData.cookie;
     const [src, setSrc] = useState('./sharks/default-shark.png');
 
     function changeColor(e) {
         setSrc('./sharks/' + `${e.target.id}` + '-shark.png');
     }
 
-    let isLoggedIn = null;
-
-    if (localStorage.getItem('token')) {
-        isLoggedIn = true
-    } else {
-        isLoggedIn = false
-    }
-    useEffect(() => {
-        console.log('bingo')
-        if (localStorage.getItem('token')) {
-            isLoggedIn = true
-        } else {
-            isLoggedIn = false
-        }
-    }, [])
-
     return (
         <>
-            <Header />
             <main>
                 <section id="home">
                     <div className="welcome-block">

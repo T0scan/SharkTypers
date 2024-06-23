@@ -1,9 +1,12 @@
-import Header from "../Header/Header"
+import { useContext, useEffect } from "react"
+import { UserContext } from "../UserContext/UserContext"
 
 function Profile(){
+
+    const userData = useContext(UserContext)
+    
     return(
         <>
-        <Header/>
         <main id="profile">
         <div className="profile-header">
             <div className="profile-header-left">
@@ -11,8 +14,8 @@ function Profile(){
                     <img src="./sharks/default-shark.png" width={ 48 } height={ 48 } alt="Profile Image"/>
                 </div>
                 <div className="profile-details">
-                    <h3>Ryan</h3>
-                    <h3>Level: 10</h3>
+                    <h3>{ userData.username }</h3>
+                    <h3>Level: { userData.level }</h3>
                     <h3>Races Won: 777</h3>
                     <div className="profile-awards">
                         <ul>

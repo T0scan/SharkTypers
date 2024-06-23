@@ -12,39 +12,27 @@ import COLLECT_FISH_SOUND_2 from '../assets/audio/collect_fish_sound_2.wav'
 import COLLECT_FISH_SOUND_3 from '../assets/audio/collect_fish_sound_3.wav'
 import { jwtDecode } from "jwt-decode";
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import useSound from 'use-sound';
+import axios from 'axios'
+import { UserContext } from '../UserContext/UserContext'
 
 function SharkTyperBox(props) {
 
-    let [username, setusername] = useState('Guest')
-    let isLoggedIn = null;
-    useEffect(() => {
-        // Assuming the JWT is stored in local storage under 'jwtToken'
-        const token = localStorage.getItem('token');
-        console.log('running')
-        if (token) {
-          try {
-            const decoded = jwtDecode(token);
-            setusername(decoded.username)
-            console.log(decoded); // This will log the decoded JWT payload
-          } catch (error) {
-            console.error('Error decoding token:', error);
-          }
-        }
-      }, [isLoggedIn]);
+    const userData = useContext(UserContext)
 
+    const username = userData.username;
     const navigate = useNavigate()
     const gameMode = props.mode;
 
     const botNames = ['Shadow', 'Ghost', 'Cyber', 'Blaze', 'Raven', 'Viper', 'Phantom', 'Frost',
-    'Storm', 'Zero', 'Nova', 'Spectre', 'Hunter', 'Ace', 'Pilot', 'Titan',
-    'Echo', 'Joker', 'Rogue', 'Ninja', 'Stryker', 'Sniper', 'Gunner', 'Warrior',
-    'Xeno', 'Zephyr', 'Sonic', 'Crash', 'Bolt', 'Vortex', 'Cobra', 'Reaper',
-    'Omega', 'Neon', 'Havoc', 'Spartan', 'Blitz', 'Hawk', 'Raptor', 'Apex',
-    'Forge', 'Razor', 'Blade', 'Rapid', 'Steel', 'Enigma', 'Vector', 'Doom']
+        'Storm', 'Zero', 'Nova', 'Spectre', 'Hunter', 'Ace', 'Pilot', 'Titan',
+        'Echo', 'Joker', 'Rogue', 'Ninja', 'Stryker', 'Sniper', 'Gunner', 'Warrior',
+        'Xeno', 'Zephyr', 'Sonic', 'Crash', 'Bolt', 'Vortex', 'Cobra', 'Reaper',
+        'Omega', 'Neon', 'Havoc', 'Spartan', 'Blitz', 'Hawk', 'Raptor', 'Apex',
+        'Forge', 'Razor', 'Blade', 'Rapid', 'Steel', 'Enigma', 'Vector', 'Doom']
     const randomBotName = Math.floor(Math.random() * botNames.length)
     const [playVictorySound] = useSound(VICTORY_SOUND);
     const [playWaterSound] = useSound(UNDER_WATER_SOUND);
@@ -96,6 +84,7 @@ function SharkTyperBox(props) {
 
     let startTime = null;
     let raceTimer = null;
+    let totalExperience = null;
     let experienceGained = null;
     let usersFinishedCount = 0;
     const userPlacement = ['1st', '2nd', '3rd', '4th', '5th']
@@ -166,51 +155,71 @@ function SharkTyperBox(props) {
         return selectedPrompt.slice(currentWordToType().length);
     }
 
-    function raceFinished(){
-                    usersFinishedCount = usersFinishedCount + 1;
-                    currentWordIndex--;
-                    currentIncorrectWordIndex--;
-                    completedRaceUI.current.style.display = 'block';
-                    userInputBox.current.setAttribute('disabled', true);
+    const saveRaceData = async (updatedEXP) => {
+        let data = {}
+        try {
+            const response = await axios.post('/api/user', data = { username: username, updatedEXP: totalExperience })
+            console.log('after POST')
+            if (response.status === 200) {
+                console.log(response.data)
+            }
+        } catch (error) {
+            if (axios.isCancel(error)) {
+                console.log('Request canceled:', error.message);
+            } else if (error.code === 'ECONNABORTED') {
+                console.log('Request timeout:', error.message);
+                formMessage.current.innerHTML = 'Request timeout. Please try again.';
+            }
+        }
+    }
 
-                    console.log("correctKeysPressed:" + correctKeysPressed);
-                    console.log("totalKeysPressed:" + totalKeysPressed);
-                    playVictorySound();
+    function raceFinished() {
+        usersFinishedCount = usersFinishedCount + 1;
+        currentWordIndex--;
+        currentIncorrectWordIndex--;
+        completedRaceUI.current.style.display = 'block';
+        userInputBox.current.setAttribute('disabled', true);
 
-                    let typingAccuracy = (correctKeysPressed / totalKeysPressed) * 100;
-                    typingAccuracyUI.current.innerText = Math.floor(typingAccuracy) + '%';
+        console.log("correctKeysPressed:" + correctKeysPressed);
+        console.log("totalKeysPressed:" + totalKeysPressed);
+        playVictorySound();
 
-                    score = typingAccuracy * 3;
-                    scoreUI.current.innerText = Math.floor(score);
-                    experienceGained = score / 2;
-                    console.log('Experience Gained: '+experienceGained)
+        let typingAccuracy = (correctKeysPressed / totalKeysPressed) * 100;
+        typingAccuracyUI.current.innerText = Math.floor(typingAccuracy) + '%';
 
-                    totalTimeToComplete = (performance.now() - startTime);
-                    timeToCompleteUI.current.innerText = millisToMinutesAndSeconds(totalTimeToComplete);
-
-                    //let timerFixedText = "Time: "+formatTime(Number(timeToCompleteUI.innerText));
-                    //timerTextUI.current.InnerText = "";
-                    //timerTextUI.current.InnerText = timerFixedText;
-                    clearInterval(raceTimer);
-
-                    totalTimeToComplete /= 1000;
+        score = typingAccuracy * 3;
+        scoreUI.current.innerText = Math.floor(score);
+        experienceGained = score / 2;
+        totalExperience = totalExperience + experienceGained;
+        saveRaceData(totalExperience);
 
 
-                    let timeDiffInMinutes = totalTimeToComplete / 60;
-                    let wordCount = currentWordObj.length;
-                    let wpm = wordCount / timeDiffInMinutes;
-                    wordsPerMinute = wpm;
-                    wordsPerMinuteUI.current.innerText = Math.round(wordsPerMinute) + " WPM";
+        totalTimeToComplete = (performance.now() - startTime);
+        timeToCompleteUI.current.innerText = millisToMinutesAndSeconds(totalTimeToComplete);
 
-                    fishCollectedUI.current.innerText = fishCollected;
+        //let timerFixedText = "Time: "+formatTime(Number(timeToCompleteUI.innerText));
+        //timerTextUI.current.InnerText = "";
+        //timerTextUI.current.InnerText = timerFixedText;
+        clearInterval(raceTimer);
 
-                    startTime = null;
-                    raceTimer = null;
-                    totalTimeToComplete = 0;
-                    wordsPerMinute = 0;
-                    totalKeysPressed = 0;
-                    correctKeysPressed = 0;
-                    return;
+        totalTimeToComplete /= 1000;
+
+
+        let timeDiffInMinutes = totalTimeToComplete / 60;
+        let wordCount = currentWordObj.length;
+        let wpm = wordCount / timeDiffInMinutes;
+        wordsPerMinute = wpm;
+        wordsPerMinuteUI.current.innerText = Math.round(wordsPerMinute) + " WPM";
+
+        fishCollectedUI.current.innerText = fishCollected;
+
+        startTime = null;
+        raceTimer = null;
+        totalTimeToComplete = 0;
+        wordsPerMinute = 0;
+        totalKeysPressed = 0;
+        correctKeysPressed = 0;
+        return;
     }
 
     function handleInput(e) {
@@ -436,28 +445,41 @@ function SharkTyperBox(props) {
         }
 
     }
-    
+
     return (
         <>
-            <Header />
             <div className="mainViewPort">
                 <div id="type-racer-box">
                     <div id="shark-area">
                         <div ref={player} className="player">
                             <div className="progress-line"></div>
-                            <p ref={playerDisplayNameUI} id="player_display_name"><b>{ username }</b></p>
+                            <p ref={playerDisplayNameUI} id="player_display_name"><b>{username}</b></p>
                             <img ref={playerShark} id="player_shark" src={SHARK} width="64" height="64" alt="Your Shark!" />
                             <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
                         </div>
 
                         {/* Conditional Player 2 (Bot) */}
                         {gameMode === "race" && (
+                            <>
                             <div ref={bot} className="player">
                                 <div className="progress-line"></div>
                                 <p ref={botDisplayNameUI} id="bot_display_name">{botNames[randomBotName]}</p>
                                 <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
                                 <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
                             </div>
+                            <div ref={bot} className="player">
+                                <div className="progress-line"></div>
+                                <p ref={botDisplayNameUI} id="bot_display_name">{botNames[4]}</p>
+                                <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
+                                <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
+                            </div>
+                            <div ref={bot} className="player">
+                                <div className="progress-line"></div>
+                                <p ref={botDisplayNameUI} id="bot_display_name">{botNames[2]}</p>
+                                <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
+                                <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
+                            </div>
+                            </>
                         )}
 
                     </div>
@@ -475,7 +497,7 @@ function SharkTyperBox(props) {
                     </div>
                     <div id="completed-race-ui" ref={completedRaceUI}>
                         <h1>🏆 You Finished The Race! 🏆</h1>
-                        <b>You Placed { userPlacement[usersFinishedCount] }!</b>
+                        <b>You Placed {userPlacement[usersFinishedCount]}!</b>
                         <ul className="stats">
                             <li>Score: <span ref={scoreUI} id="score" style={{ color: 'gold', paddingLeft: '5px' }}>3114</span></li>
                             <li>Accuracy:<span ref={typingAccuracyUI} id="typing_accuracy" style={{ color: 'gold', paddingLeft: '5px' }}>98%</span></li>
@@ -483,7 +505,7 @@ function SharkTyperBox(props) {
                             <li>Speed:<span ref={wordsPerMinuteUI} id="words_per_minute" style={{ color: 'gold', paddingLeft: '5px' }}>98 WPM</span></li>
                             <li>Fish: <span ref={fishCollectedUI} id="fish_collected" style={{ color: 'orange', paddingLeft: '5px' }}>99</span></li>
                         </ul>
-                        <Link to={`/`}><button type="button">Go to home</button></Link> <b>OR</b> <button type="button" onClick={ () => navigate(0) } style={{ background: 'green' }}>Join another race!</button>
+                        <Link to={`/`}><button type="button">Go to home</button></Link> <b>OR</b> <button type="button" onClick={() => navigate(0)} style={{ background: 'green' }}>Join another race!</button>
                     </div>
                 </div>
             </div>

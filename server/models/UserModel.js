@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema(
         email: String,
         level: Number,
         exp: Number,
+        scales: Number,
+        racesCompleted: Number,
         racesWon: Number
     }
 )

@@ -20,6 +20,8 @@ router.post('/register', async (req, res) => {
             email: email,
             level: 1,
             exp: 0,
+            scales: 0,
+            racesCompleted: 0,
             racesWon: 0
         }
     )
@@ -30,6 +32,8 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body
+    console.log(username+' theusername')
+    console.log(password+' thepassword')
     const userId = await User.findOne({ username: username })
     if (!userId) {
         return res.status(401).json({ message: 'No username found' });
@@ -44,9 +48,55 @@ router.post('/login', async (req, res) => {
 
     console.log('User Logged In!')
     console.log(token)
-    let decode = await jwt.verify(token, secretKey);
-    console.log(decode)
-    console.log(decode.username) 
 })
+
+router.post('/', async (req, res) => {
+    const username = req.body.username
+    const updatedEXP = req.body.updatedEXP
+    try {
+    const userId = await User.findOne({ username: username })
+    if (!userId) {
+        return res.status(401).json({ message: 'No username found' });
+    }
+
+    await User.updateOne({ username: username }, { exp: userId.exp + updatedEXP, scales: userId.scales + 100, racesCompleted: userId.racesCompleted + 1 });
+    res.status(200).json({ message: 'Data Save Successful' });
+
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+router.get('/protected', verifyToken, (req, res) =>{
+
+    res.json({ user: req.authData.username })
+})
+
+// Function to verify JWT token
+function verifyToken(req, res, next) {
+    console.log('i ran')
+    // Get auth header value
+    const bearerHeader = req.headers['authorization'];
+    // Check if bearer is undefined
+    if (typeof bearerHeader !== 'undefined') {
+      // Split at the space
+      const bearer = bearerHeader.split(' ');
+      // Get token from array
+      const token = bearer[1];
+      // Verify token
+      jwt.verify(token, secretKey, (err, authData) => {
+        if (err) {
+          res.sendStatus(403); // Forbidden
+        } else {
+          // Token is valid
+          req.authData = authData; // Attach authData to request object if needed
+          next(); // Proceed to next middleware or route handler
+        }
+      });
+    } else {
+      // Forbidden
+      res.sendStatus(403);
+    }
+  }
 
 module.exports = router

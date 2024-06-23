@@ -1,44 +1,46 @@
 import "../index.css";
 import Header from "../Header/Header";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useContext, useRef, useState } from "react";
 import axios from "axios";
+import { UserContext } from "../UserContext/UserContext";
 
 function Login() {
+    const userData = useContext(UserContext)
     const navigate = useNavigate()
 
     const formMessage = useRef(null)
+    const usernameField = useRef(null)
+    const passwordField = useRef(null)
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
             navigate('/')
         }
-    })
-
-    const [formData, setFormData] = useState({
-        username: '',
-        password: ''
-    });
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const username = usernameField.current.value
+        const password = passwordField.current.value
 
         try {
             console.log('Before POST request');
             formMessage.current.innerHTML = 'Sending login request...';
 
-            const response = await axios.post('/api/user/login', formData, {
+            const response = await axios.post('/api/user/login', { username: username, password: password }, {
                 timeout: 10000 // 10 seconds timeout
             });
 
             console.log('After POST request');
 
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
+                const token = response.data.token;
+                userData.hasCookie(true);
+                userData.setUsername(username)
+                userData.username = userData.setUsername
+                document.cookie = "token="+`${token}`+'; Samesite=Lax; Secure';
                 navigate('/');
             }
         } catch (error) {
@@ -56,7 +58,6 @@ function Login() {
 
     return (
         <>
-            <Header />
             <div id="login-area">
                 <h1>Login</h1>
                 <div ref={formMessage} className="form-message"></div>
@@ -65,20 +66,18 @@ function Login() {
                     <div>
                         <label>Username:</label>
                         <input
+                            ref={usernameField}
                             type="text"
                             name="username"
-                            value={formData.username}
-                            onChange={handleChange}
                             required
                         />
                     </div>
                     <div>
                         <label>Password:</label>
                         <input
+                            ref={passwordField}
                             type="password"
                             name="password"
-                            value={formData.password}
-                            onChange={handleChange}
                             required
                         />
                     </div>
