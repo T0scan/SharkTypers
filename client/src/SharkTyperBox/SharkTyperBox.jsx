@@ -1,31 +1,49 @@
-import Header from '../Header/Header'
+//libraries
+import { useRef, useEffect, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import useSound from 'use-sound';
+import axios from 'axios'
 
+//usercontext
+import { UserContext } from '../UserContext/UserContext'
+
+//images
 import REEF from '../assets/imgs/reef.png'
 import MEDAL from '../assets/imgs/medal.png'
 import SHARK from '../assets/imgs/sharks/blue-shark.png'
 
+//sounds
 import VICTORY_SOUND from '../assets/audio/game_victory_sound.wav'
 import UNDER_WATER_SOUND from '../assets/audio/underwater_ambience.wav'
 import TYPING_ERROR_SOUND from '../assets/audio/error_sound.wav'
 import COLLECT_FISH_SOUND_1 from '../assets/audio/collect_fish_sound_1.wav'
 import COLLECT_FISH_SOUND_2 from '../assets/audio/collect_fish_sound_2.wav'
 import COLLECT_FISH_SOUND_3 from '../assets/audio/collect_fish_sound_3.wav'
-import { jwtDecode } from "jwt-decode";
+import { io } from 'socket.io-client';
 
-import { useRef, useEffect, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+function SharkTyperBox({ mode }) {
 
-import useSound from 'use-sound';
-import axios from 'axios'
-import { UserContext } from '../UserContext/UserContext'
+    const gameMode = mode;
 
-function SharkTyperBox(props) {
+    useEffect(() => {
+        console.log('Component mounted');
+        const socket = io('http://localhost:3000');
+
+        socket.on('connection', (data) => {
+            console.log(data)
+        })
+        socket.emit('join', gameMode);
+
+        return () => {
+            socket.disconnect();
+            console.log('Component will unmount');
+        };
+    }, [gameMode]);
 
     const userData = useContext(UserContext)
 
     const username = userData.username;
     const navigate = useNavigate()
-    const gameMode = props.mode;
 
     const botNames = ['Shadow', 'Ghost', 'Cyber', 'Blaze', 'Raven', 'Viper', 'Phantom', 'Frost',
         'Storm', 'Zero', 'Nova', 'Spectre', 'Hunter', 'Ace', 'Pilot', 'Titan',
@@ -461,24 +479,24 @@ function SharkTyperBox(props) {
                         {/* Conditional Player 2 (Bot) */}
                         {gameMode === "race" && (
                             <>
-                            <div ref={bot} className="player">
-                                <div className="progress-line"></div>
-                                <p ref={botDisplayNameUI} id="bot_display_name">{botNames[randomBotName]}</p>
-                                <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
-                                <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
-                            </div>
-                            <div ref={bot} className="player">
-                                <div className="progress-line"></div>
-                                <p ref={botDisplayNameUI} id="bot_display_name">{botNames[4]}</p>
-                                <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
-                                <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
-                            </div>
-                            <div ref={bot} className="player">
-                                <div className="progress-line"></div>
-                                <p ref={botDisplayNameUI} id="bot_display_name">{botNames[2]}</p>
-                                <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
-                                <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
-                            </div>
+                                <div ref={bot} className="player">
+                                    <div className="progress-line"></div>
+                                    <p ref={botDisplayNameUI} id="bot_display_name">{botNames[randomBotName]}</p>
+                                    <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
+                                    <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
+                                </div>
+                                <div ref={bot} className="player">
+                                    <div className="progress-line"></div>
+                                    <p ref={botDisplayNameUI} id="bot_display_name">{botNames[4]}</p>
+                                    <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
+                                    <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
+                                </div>
+                                <div ref={bot} className="player">
+                                    <div className="progress-line"></div>
+                                    <p ref={botDisplayNameUI} id="bot_display_name">{botNames[2]}</p>
+                                    <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
+                                    <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
+                                </div>
                             </>
                         )}
 
