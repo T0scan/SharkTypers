@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import Header from "../Header/Header";
 import { UserContext } from "../UserContext/UserContext";
 
 function Home() {
