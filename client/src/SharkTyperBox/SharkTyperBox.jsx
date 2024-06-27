@@ -1,5 +1,5 @@
 //libraries
-import { useRef, useEffect, useContext } from 'react';
+import { useRef, useEffect, useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useSound from 'use-sound';
 import axios from 'axios'
@@ -20,9 +20,11 @@ import COLLECT_FISH_SOUND_1 from '../assets/audio/collect_fish_sound_1.wav'
 import COLLECT_FISH_SOUND_2 from '../assets/audio/collect_fish_sound_2.wav'
 import COLLECT_FISH_SOUND_3 from '../assets/audio/collect_fish_sound_3.wav'
 import { io } from 'socket.io-client';
+import PlayerComponent from '../PlayerComponent/PlayerComponent';
 
 function SharkTyperBox({ mode }) {
 
+    const [racers, setRacers] = useState([])
     const gameMode = mode;
 
     useEffect(() => {
@@ -31,14 +33,19 @@ function SharkTyperBox({ mode }) {
 
         socket.on('connection', (data) => {
             console.log(data)
-        })
-        socket.emit('join', gameMode);
+        });
+
+        socket.on('racers', (racers) => {
+            setRacers(racers)
+        });
+
+        socket.emit('join', { mode: gameMode, username: username });
 
         return () => {
             socket.disconnect();
             console.log('Component will unmount');
         };
-    }, [gameMode]);
+    }, [setRacers]);
 
     const userData = useContext(UserContext)
 
@@ -201,7 +208,6 @@ function SharkTyperBox({ mode }) {
         console.log("correctKeysPressed:" + correctKeysPressed);
         console.log("totalKeysPressed:" + totalKeysPressed);
         playVictorySound();
-
         let typingAccuracy = (correctKeysPressed / totalKeysPressed) * 100;
         typingAccuracyUI.current.innerText = Math.floor(typingAccuracy) + '%';
 
@@ -479,24 +485,11 @@ function SharkTyperBox({ mode }) {
                         {/* Conditional Player 2 (Bot) */}
                         {gameMode === "race" && (
                             <>
-                                <div ref={bot} className="player">
-                                    <div className="progress-line"></div>
-                                    <p ref={botDisplayNameUI} id="bot_display_name">{botNames[randomBotName]}</p>
-                                    <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
-                                    <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
-                                </div>
-                                <div ref={bot} className="player">
-                                    <div className="progress-line"></div>
-                                    <p ref={botDisplayNameUI} id="bot_display_name">{botNames[4]}</p>
-                                    <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
-                                    <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
-                                </div>
-                                <div ref={bot} className="player">
-                                    <div className="progress-line"></div>
-                                    <p ref={botDisplayNameUI} id="bot_display_name">{botNames[2]}</p>
-                                    <img ref={botShark} id="bot_shark" src={SHARK} width="64" height="64" alt="A Shark!" />
-                                    <img id="award" src={MEDAL} width="32" height="32" alt="A Medal For The Finish" />
-                                </div>
+                                {
+                                    racers.map((username, index) => (
+                                        <PlayerComponent key={index} username={racers[index].username} position={300} />
+                                    ))
+                                }
                             </>
                         )}
 
